@@ -5,30 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Expense;
 use App\Models\Trip;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
-        $filter = $request->input('filter', 'month');
+        $timezone = 'Asia/Baghdad';
+        
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
 
-        $tripQuery = Trip::query();
-        $expenseQuery = Expense::query();
+        $isCustomRange = !empty($fromDate) && !empty($toDate);
 
-        if ($filter === 'today') {
-            $tripQuery->whereDate('date', Carbon::today());
-            $expenseQuery->whereDate('date', Carbon::today());
-        } elseif ($filter === 'week') {
-            $tripQuery->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-            $expenseQuery->whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        } elseif ($filter === 'month') {
-            $tripQuery->whereMonth('date', Carbon::now()->month)->whereYear('date', Carbon::now()->year);
-            $expenseQuery->whereMonth('date', Carbon::now()->month)->whereYear('date', Carbon::now()->year);
+        if ($isCustomRange) {
+            // User requested a specific date range report
+            $start = Carbon::parse($fromDate, $timezone)->startOfDay();
+            $end = Carbon::parse($toDate, $timezone)->endOfDay();
+        } else {
+            // Default 24-hour mode: Resets every midnight (12:00 AM) Baghdad Time
+            $start = Carbon::now($timezone)->startOfDay();
+            $end = Carbon::now($timezone)->endOfDay();
         }
+
+        // Queries filtered strictly by selected time range
+        $tripQuery = Trip::query()->whereBetween('date', [$start, $end]);
+        $expenseQuery = Expense::query()->whereBetween('date', [$start, $end]);
 
         $trips = (clone $tripQuery)->get();
         $expenses = (clone $expenseQuery)->get();
@@ -47,8 +52,18 @@ class DashboardController extends Controller
         $totalExpenses = $expenses->sum('amount');
         $netIncome = $totalRevenue - $totalExpenses;
 
-        $recentTrips = Trip::with('user:id,name,role')->latest('date')->take(5)->get();
-        $recentExpenses = Expense::with('user:id,name,role')->latest('date')->take(5)->get();
+        // Recent items inside the requested range (or fallback to recent)
+        $recentTrips = Trip::with('user:id,name,role')
+            ->whereBetween('date', [$start, $end])
+            ->latest('date')
+            ->take(6)
+            ->get();
+
+        // If no trips in today's range yet, fetch last 5 overall so the table isn't completely empty
+        if ($recentTrips->isEmpty()) {
+            $recentTrips = Trip::with('user:id,name,role')->latest('date')->take(5)->get();
+        }
+
         $recentActivities = ActivityLog::latest()->take(6)->get();
 
         return Inertia::render('Dashboard', [
@@ -62,9 +77,11 @@ class DashboardController extends Controller
                 'totalExpenses' => $totalExpenses,
                 'netIncome' => $netIncome,
             ],
-            'filter' => $filter,
+            'isCustomRange' => $isCustomRange,
+            'fromDate' => $fromDate ?: $start->toDateString(),
+            'toDate' => $toDate ?: $end->toDateString(),
+            'currentBaghdadTime' => Carbon::now($timezone)->format('Y-m-d h:i A'),
             'recentTrips' => $recentTrips,
-            'recentExpenses' => $recentExpenses,
             'recentActivities' => $recentActivities,
         ]);
     }

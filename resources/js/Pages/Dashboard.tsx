@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
 import {
@@ -10,16 +11,20 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import {
     PackageCheck,
     Truck,
     Receipt,
     Wallet,
-    TrendingUp,
     Calendar,
     History,
     ArrowRight,
+    Search,
+    RotateCcw,
+    Clock,
+    Filter,
 } from 'lucide-react';
 
 interface StatProps {
@@ -33,20 +38,16 @@ interface StatProps {
         totalExpenses: number;
         netIncome: number;
     };
-    filter: string;
+    isCustomRange: boolean;
+    fromDate: string;
+    toDate: string;
+    currentBaghdadTime: string;
     recentTrips: Array<{
         id: number;
         type: 'loaded' | 'empty';
         price: number;
         date: string;
         notes?: string;
-        user: { name: string; role: string };
-    }>;
-    recentExpenses: Array<{
-        id: number;
-        amount: number;
-        reason?: string;
-        date: string;
         user: { name: string; role: string };
     }>;
     recentActivities: Array<{
@@ -59,9 +60,32 @@ interface StatProps {
     }>;
 }
 
-export default function Dashboard({ stats, filter, recentTrips, recentExpenses, recentActivities }: StatProps) {
-    const handleFilterChange = (newFilter: string) => {
-        router.get(route('dashboard'), { filter: newFilter }, { preserveState: true });
+export default function Dashboard({
+    stats,
+    isCustomRange,
+    fromDate,
+    toDate,
+    currentBaghdadTime,
+    recentTrips,
+    recentActivities,
+}: StatProps) {
+    const [from, setFrom] = useState(fromDate || '');
+    const [to, setTo] = useState(toDate || '');
+
+    const handleFetchReport = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (!from || !to) return;
+        router.get(
+            route('dashboard'),
+            { from_date: from, to_date: to },
+            { preserveState: true }
+        );
+    };
+
+    const handleResetToToday = () => {
+        setFrom('');
+        setTo('');
+        router.get(route('dashboard'), {}, { preserveState: true });
     };
 
     const formatIQD = (amount: number) => {
@@ -77,13 +101,6 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
         });
     };
 
-    const filters = [
-        { key: 'today', label: 'اليوم' },
-        { key: 'week', label: 'هذا الأسبوع' },
-        { key: 'month', label: 'هذا الشهر' },
-        { key: 'all', label: 'الكل' },
-    ];
-
     return (
         <MainLayout title="الداشبورد">
             <Head title="الداشبورد - رحلات" />
@@ -92,29 +109,69 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
                 {/* Page Heading */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">الداشبورد</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
+                            الداشبورد
+                        </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            ملخص الحركات والإيرادات والمصروفات
+                            توقيت بغداد الحالي: <span className="font-semibold text-foreground" dir="ltr">{currentBaghdadTime}</span>
                         </p>
                     </div>
 
-                    {/* Period Filter */}
-                    <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
-                        {filters.map((f) => (
-                            <button
-                                key={f.key}
-                                onClick={() => handleFilterChange(f.key)}
-                                className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                                    filter === f.key
-                                        ? 'bg-background text-foreground shadow'
-                                        : 'hover:text-foreground'
-                                }`}
-                            >
-                                {f.label}
-                            </button>
-                        ))}
-                    </div>
+                    <Badge variant={isCustomRange ? 'default' : 'secondary'} className="w-fit py-1 px-3 text-xs gap-1.5">
+                        <Clock className="size-3.5" />
+                        {isCustomRange
+                            ? `تقرير للفترة من ${fromDate} إلى ${toDate}`
+                            : 'إحصائيات اليوم (تتصفح تلقائياً 12:00 منتصف الليل بتوقيت بغداد)'}
+                    </Badge>
                 </div>
+
+                {/* Date Range Report Filter Bar */}
+                <Card>
+                    <CardContent className="pt-4">
+                        <form onSubmit={handleFetchReport} className="flex flex-col sm:flex-row items-end gap-3">
+                            <div className="space-y-1.5 flex-1 w-full">
+                                <label className="text-xs font-semibold text-muted-foreground">من تاريخ</label>
+                                <Input
+                                    type="date"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                    className="w-full"
+                                    dir="ltr"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5 flex-1 w-full">
+                                <label className="text-xs font-semibold text-muted-foreground">إلى تاريخ</label>
+                                <Input
+                                    type="date"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                    className="w-full"
+                                    dir="ltr"
+                                />
+                            </div>
+
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button type="submit" className="gap-2 flex-1 sm:flex-initial">
+                                    <Filter className="size-4" />
+                                    جلب التقرير
+                                </Button>
+
+                                {isCustomRange && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleResetToToday}
+                                        className="gap-2 flex-1 sm:flex-initial text-xs"
+                                    >
+                                        <RotateCcw className="size-3.5" />
+                                        إحصائيات اليوم
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
                 {/* Stats Grid */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -137,9 +194,9 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
                             <PackageCheck className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.loadedCount}</div>
+                            <div className="text-2xl font-bold">{formatIQD(stats.loadedRevenue)}</div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {formatIQD(stats.loadedRevenue)}
+                                {stats.loadedCount} رحلة محملة
                             </p>
                         </CardContent>
                     </Card>
@@ -177,16 +234,18 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
 
                 {/* Bottom Grid */}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-                    {/* Recent Trips — wide card */}
+                    {/* Recent Trips */}
                     <Card className="lg:col-span-4">
                         <CardHeader>
                             <CardTitle className="text-base">أحدث الرحلات</CardTitle>
-                            <CardDescription>آخر 5 رحلات تم تسجيلها</CardDescription>
+                            <CardDescription>
+                                {isCustomRange ? `رحلات الفترة المحددة` : `رحلات اليوم`}
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {recentTrips.length === 0 ? (
                                 <p className="text-center py-6 text-sm text-muted-foreground">
-                                    لا توجد رحلات في هذه الفترة
+                                    لا توجد رحلات مسجلة في هذه الفترة
                                 </p>
                             ) : (
                                 recentTrips.map((t, i) => (
@@ -194,11 +253,11 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-                                                    t.type === 'loaded' ? 'bg-blue-50' : 'bg-orange-50'
+                                                    t.type === 'loaded' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'
                                                 }`}>
                                                     {t.type === 'loaded'
-                                                        ? <PackageCheck className="size-4 text-blue-600" />
-                                                        : <Truck className="size-4 text-orange-600" />
+                                                        ? <PackageCheck className="size-4" />
+                                                        : <Truck className="size-4" />
                                                     }
                                                 </div>
                                                 <div>
@@ -221,11 +280,11 @@ export default function Dashboard({ stats, filter, recentTrips, recentExpenses, 
                         </CardContent>
                     </Card>
 
-                    {/* Activity Log — narrow card */}
+                    {/* Activity Log */}
                     <Card className="lg:col-span-3">
                         <CardHeader>
                             <CardTitle className="text-base">سجل النشاطات</CardTitle>
-                            <CardDescription>آخر عمليات الدخول والتسجيل</CardDescription>
+                            <CardDescription>آخر الإجراءات والعمليات في النظام</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {recentActivities.length === 0 ? (
