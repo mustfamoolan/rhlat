@@ -10,28 +10,35 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     * Uses firstOrCreate to safely run in production without duplicating or overwriting existing users.
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'الأدمن الرئيسي',
-            'email' => 'admin@rhlat.com',
-            'password' => Hash::make('12345678'),
-            'role' => 'admin',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@rhlat.com'],
+            [
+                'name' => 'الأدمن الرئيسي',
+                'password' => Hash::make('12345678'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::create([
-            'name' => 'الموظف المسؤول',
-            'email' => 'employee@rhlat.com',
-            'password' => Hash::make('12345678'),
-            'role' => 'employee',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'employee@rhlat.com'],
+            [
+                'name' => 'الموظف المسؤول',
+                'password' => Hash::make('12345678'),
+                'role' => 'employee',
+            ]
+        );
 
-        User::create([
-            'name' => 'dev',
-            'email' => 'dev@rhlat.com',
-            'password' => Hash::make('12345678'),
-            'role' => 'employee',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'dev@rhlat.com'],
+            [
+                'name' => 'dev',
+                'password' => Hash::make('12345678'),
+                'role' => 'employee',
+            ]
+        );
     }
 }
