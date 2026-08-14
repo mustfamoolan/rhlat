@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
 import {
@@ -24,6 +24,7 @@ import {
     RotateCcw,
     Clock,
     Filter,
+    Radio,
 } from 'lucide-react';
 
 interface StatProps {
@@ -71,6 +72,17 @@ export default function Dashboard({
     const [from, setFrom] = useState(fromDate || '');
     const [to, setTo] = useState(toDate || '');
 
+    // Real-time live polling: Auto-refresh data every 4 seconds silently
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({
+                only: ['stats', 'recentTrips', 'recentActivities', 'currentBaghdadTime'],
+            });
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     const handleFetchReport = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (!from || !to) return;
@@ -112,9 +124,16 @@ export default function Dashboard({
                 {/* Page Heading */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                            الداشبورد
-                        </h1>
+                        <div className="flex items-center gap-2.5">
+                            <h1 className="text-2xl font-semibold tracking-tight">الداشبورد</h1>
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                تحديث فوري مباشر
+                            </span>
+                        </div>
                         <p className="text-sm text-muted-foreground mt-1">
                             توقيت بغداد: <span className="font-mono font-medium text-foreground" dir="ltr">{currentBaghdadTime}</span>
                         </p>
