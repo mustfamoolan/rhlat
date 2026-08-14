@@ -1,6 +1,0 @@
-import{c as s}from"./createLucideIcon-DnuI8IVz.js";import{j as a}from"./app-Ds0SXybP.js";import{f as r}from"./card-CznhUkgS.js";/**
- * @license lucide-react v1.31.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const o=[["path",{d:"m21 21-4.34-4.34",key:"14j7rj"}],["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}]],d=s("search",o);function i({className:e,...t}){return a.jsx("div",{className:"relative w-full overflow-auto",children:a.jsx("table",{className:r("w-full caption-bottom text-sm",e),...t})})}function m({className:e,...t}){return a.jsx("thead",{className:r("[&_tr]:border-b",e),...t})}function u({className:e,...t}){return a.jsx("tbody",{className:r("[&_tr:last-child]:border-0",e),...t})}function b({className:e,...t}){return a.jsx("tr",{className:r("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",e),...t})}function x({className:e,...t}){return a.jsx("th",{className:r("h-10 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",e),...t})}function f({className:e,...t}){return a.jsx("td",{className:r("px-4 py-3 align-middle [&:has([role=checkbox])]:pr-0",e),...t})}export{d as S,i as T,m as a,b,x as c,u as d,f as e};

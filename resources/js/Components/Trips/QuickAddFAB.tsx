@@ -170,7 +170,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                 </div>
 
                                 {/* Batch Count Selection */}
-                                <div className="space-y-1.5">
+                                <div className="space-y-2">
                                     <div className="flex items-center justify-between">
                                         <label className="text-sm font-medium flex items-center gap-1.5">
                                             <Layers className="h-4 w-4 text-muted-foreground" />
@@ -180,6 +180,8 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                             المجموع: {formatIQD(data.price * (data.count || 1))}
                                         </span>
                                     </div>
+                                    
+                                    {/* Presets */}
                                     <div className="flex gap-2">
                                         {[1, 5, 10, 15, 20].map((num) => (
                                             <button
@@ -196,6 +198,25 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                             </button>
                                         ))}
                                     </div>
+
+                                    {/* Custom numeric input forcing mobile numeric keypad */}
+                                    <div className="relative pt-1">
+                                        <input
+                                            type="number"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            min="1"
+                                            max="50"
+                                            value={data.count}
+                                            onChange={(e) => setData('count', Math.max(1, parseInt(e.target.value) || 1))}
+                                            placeholder="أو ادخل عدداً مخصصاً..."
+                                            className="w-full h-10 rounded-lg border border-input bg-transparent pr-3 pl-14 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring tabular-nums"
+                                            dir="ltr"
+                                        />
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none">
+                                            رحلة
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Price Input */}
@@ -205,6 +226,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                         <input
                                             type="number"
                                             inputMode="numeric"
+                                            pattern="[0-9]*"
                                             value={data.price}
                                             onChange={(e) => setData('price', parseInt(e.target.value) || 0)}
                                             className="w-full h-12 rounded-lg border border-input bg-transparent pr-4 pl-14 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-ring tabular-nums"

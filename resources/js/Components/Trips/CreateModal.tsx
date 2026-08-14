@@ -145,10 +145,13 @@ export function CreateModal({ open, onOpenChange, defaultType = 'loaded' }: Crea
                         <Input
                             id="count"
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             min="1"
                             max="50"
                             value={data.count}
                             onChange={(e) => setData('count', Math.max(1, parseInt(e.target.value) || 1))}
+                            placeholder="أدخل عدداً مخصصاً..."
                             className="tabular-nums"
                             dir="ltr"
                             required
@@ -163,6 +166,8 @@ export function CreateModal({ open, onOpenChange, defaultType = 'loaded' }: Crea
                             <Input
                                 id="price"
                                 type="number"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 step="1"
                                 min="0"
                                 value={data.price}
