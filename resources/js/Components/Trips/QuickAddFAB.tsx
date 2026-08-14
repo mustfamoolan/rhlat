@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { PackageCheck, Truck, Plus, X, Check, FileText } from 'lucide-react';
+import { PackageCheck, Truck, Plus, X, Check, FileText, Layers } from 'lucide-react';
 
 type TripType = 'loaded' | 'empty';
 
@@ -17,6 +17,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
     const { data, setData, post, processing, reset } = useForm({
         type: 'loaded' as TripType,
         price: 30000,
+        count: 1,
         date: '',
         notes: '',
     });
@@ -32,6 +33,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
         setData({
             type,
             price: type === 'loaded' ? 30000 : 10000,
+            count: 1,
             date: getCurrentDateTime(),
             notes: '',
         });
@@ -76,7 +78,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                     dir="rtl"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="bg-background rounded-t-2xl border-t border-border shadow-2xl">
+                    <div className="bg-background rounded-t-2xl border-t border-border shadow-2xl max-h-[90vh] overflow-y-auto">
                         {/* Handle */}
                         <div className="flex justify-center pt-3 pb-1">
                             <div className="w-10 h-1 rounded-full bg-border" />
@@ -167,9 +169,38 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                     </button>
                                 </div>
 
+                                {/* Batch Count Selection */}
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium flex items-center gap-1.5">
+                                            <Layers className="h-4 w-4 text-muted-foreground" />
+                                            عدد الرحلات (دفعة واحدة)
+                                        </label>
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                            المجموع: {formatIQD(data.price * (data.count || 1))}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {[1, 5, 10, 15, 20].map((num) => (
+                                            <button
+                                                key={num}
+                                                type="button"
+                                                onClick={() => setData('count', num)}
+                                                className={`flex-1 rounded-lg py-2 text-xs font-semibold border transition-all ${
+                                                    data.count === num
+                                                        ? 'bg-foreground text-background border-foreground shadow-sm'
+                                                        : 'border-border hover:bg-secondary text-foreground'
+                                                }`}
+                                            >
+                                                {num === 1 ? '1' : `${num}`}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* Price Input */}
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-medium">السعر (دينار عراقي)</label>
+                                    <label className="text-sm font-medium">سعر الرحلة الواحدة</label>
                                     <div className="relative">
                                         <input
                                             type="number"
@@ -183,11 +214,12 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                             د.ع
                                         </span>
                                     </div>
-                                    {/* Quick amounts */}
+                                    {/* Quick price amounts */}
                                     <div className="flex gap-2 mt-2">
                                         {[10000, 15000, 20000, 25000, 30000].map((amt) => (
                                             <button
                                                 key={amt}
+                                                type="button"
                                                 onClick={() => setData('price', amt)}
                                                 className={`flex-1 rounded-lg py-1.5 text-xs font-medium border transition-colors ${
                                                     data.price === amt
@@ -215,6 +247,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
 
                                 {/* Notes toggle */}
                                 <button
+                                    type="button"
                                     onClick={() => setShowNotes(!showNotes)}
                                     className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                                 >
@@ -234,6 +267,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
 
                                 {/* Submit */}
                                 <button
+                                    type="button"
                                     onClick={handleSubmit}
                                     disabled={processing || data.price <= 0}
                                     className="w-full h-13 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-base font-semibold disabled:opacity-50 active:scale-[0.98] transition-all mt-2"
@@ -250,7 +284,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                     ) : (
                                         <>
                                             <Check className="h-5 w-5" />
-                                            تسجيل الرحلة — {formatIQD(data.price)}
+                                            تسجيل {data.count > 1 ? `${data.count} رحلات` : 'الرحلة'} — {formatIQD(data.price * data.count)}
                                         </>
                                     )}
                                 </button>

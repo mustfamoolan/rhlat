@@ -63,26 +63,43 @@ class TripController extends Controller
         $validated = $request->validate([
             'type' => 'required|in:loaded,empty',
             'price' => 'required|integer|min:0',
+            'count' => 'nullable|integer|min:1|max:50',
             'date' => 'required|date',
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $trip = Trip::create([
-            'user_id' => Auth::id(),
-            'type' => $validated['type'],
-            'price' => $validated['price'],
-            'date' => $validated['date'],
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $count = (int) ($validated['count'] ?? 1);
+        $userId = Auth::id();
 
-        $typeLabel = $trip->type === 'loaded' ? 'محملة' : 'فارغة';
-        $priceFormatted = number_format($trip->price);
-        ActivityLog::log(
-            "إضافة رحلة {$typeLabel}",
-            "تمت إضافة رحلة {$typeLabel} بمبلغ {$priceFormatted} د.ع" . ($trip->notes ? " (ملاحظات: {$trip->notes})" : "")
-        );
+        for ($i = 0; $i < $count; $i++) {
+            Trip::create([
+                'user_id' => $userId,
+                'type' => $validated['type'],
+                'price' => $validated['price'],
+                'date' => $validated['date'],
+                'notes' => $validated['notes'] ?? null,
+            ]);
+        }
 
-        return back()->with('success', 'تمت إضافة الرحلة بنجاح.');
+        $typeLabel = $validated['type'] === 'loaded' ? 'محملة' : 'فارغة';
+        $priceFormatted = number_format($validated['price']);
+        $totalFormatted = number_format($validated['price'] * $count);
+
+        if ($count === 1) {
+            ActivityLog::log(
+                "إضافة رحلة {$typeLabel}",
+                "تمت إضافة رحلة {$typeLabel} بمبلغ {$priceFormatted} د.ع" . (!empty($validated['notes']) ? " (ملاحظات: {$validated['notes']})" : "")
+            );
+            $message = 'تمت إضافة الرحلة بنجاح.';
+        } else {
+            ActivityLog::log(
+                "إضافة دفعة رحلات {$typeLabel} ({$count} رحلات)",
+                "تمت إضافة عدد ({$count}) رحلات {$typeLabel} بمبلغ {$priceFormatted} د.ع للرحلة (إجمالي الوجبة: {$totalFormatted} د.ع)"
+            );
+            $message = "تمت إضافة ({$count}) رحلات {$typeLabel} بنجاح.";
+        }
+
+        return back()->with('success', $message);
     }
 
     public function update(Request $request, Trip $trip): RedirectResponse
