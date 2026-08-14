@@ -180,7 +180,7 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                             المجموع: {formatIQD(data.price * (data.count || 1))}
                                         </span>
                                     </div>
-                                    
+
                                     {/* Presets */}
                                     <div className="flex gap-2">
                                         {[1, 5, 10, 15, 20].map((num) => (
@@ -235,23 +235,6 @@ export function QuickAddFAB({ onSuccess }: QuickAddFABProps) {
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium pointer-events-none">
                                             د.ع
                                         </span>
-                                    </div>
-                                    {/* Quick price amounts */}
-                                    <div className="flex gap-2 mt-2">
-                                        {[10000, 15000, 20000, 25000, 30000].map((amt) => (
-                                            <button
-                                                key={amt}
-                                                type="button"
-                                                onClick={() => setData('price', amt)}
-                                                className={`flex-1 rounded-lg py-1.5 text-xs font-medium border transition-colors ${
-                                                    data.price === amt
-                                                        ? 'bg-foreground text-background border-foreground'
-                                                        : 'border-border hover:bg-secondary'
-                                                }`}
-                                            >
-                                                {(amt / 1000)}k
-                                            </button>
-                                        ))}
                                     </div>
                                 </div>
 
