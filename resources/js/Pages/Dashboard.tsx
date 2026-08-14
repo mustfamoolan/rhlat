@@ -23,6 +23,7 @@ import {
     ArrowRight,
     RotateCcw,
     Filter,
+    FileText,
 } from 'lucide-react';
 
 interface StatProps {
@@ -113,6 +114,8 @@ export default function Dashboard({
         return `${year}/${month}/${day} ${formattedHours}:${minutes} ${ampm}`;
     };
 
+    const pdfUrl = route('reports.pdf', isCustomRange ? { from_date: from, to_date: to } : {});
+
     return (
         <MainLayout title="الداشبورد">
             <Head title="الداشبورد - رحلات" />
@@ -163,11 +166,21 @@ export default function Dashboard({
                                 />
                             </div>
 
-                            <div className="flex gap-2 w-full sm:w-auto">
+                            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                                 <Button type="submit" className="gap-2 flex-1 sm:flex-initial">
                                     <Filter className="size-4" />
                                     جلب التقرير
                                 </Button>
+
+                                <a
+                                    href={pdfUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 text-sm font-medium transition-colors border border-input shadow-sm flex-1 sm:flex-initial"
+                                >
+                                    <FileText className="size-4" />
+                                    تحميل تقرير PDF
+                                </a>
 
                                 {isCustomRange && (
                                     <Button
