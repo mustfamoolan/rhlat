@@ -1,4 +1,4 @@
-import{c as o}from"./badge-BDUjYkqb.js";/**
+import{c as o}from"./badge-CB3UfWEd.js";/**
  * @license lucide-react v1.31.0 - ISC
  *
  * This source code is licensed under the ISC license.

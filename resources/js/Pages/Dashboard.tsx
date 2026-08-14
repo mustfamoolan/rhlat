@@ -21,7 +21,6 @@ import {
     Calendar,
     History,
     ArrowRight,
-    Search,
     RotateCcw,
     Clock,
     Filter,
@@ -93,12 +92,16 @@ export default function Dashboard({
     };
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('ar-IQ', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'م' : 'ص';
+        const formattedHours = hours % 12 || 12;
+        return `${year}/${month}/${day} ${formattedHours}:${minutes} ${ampm}`;
     };
 
     return (
@@ -113,15 +116,22 @@ export default function Dashboard({
                             الداشبورد
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            توقيت بغداد الحالي: <span className="font-semibold text-foreground" dir="ltr">{currentBaghdadTime}</span>
+                            توقيت بغداد: <span className="font-mono font-medium text-foreground" dir="ltr">{currentBaghdadTime}</span>
                         </p>
                     </div>
 
                     <Badge variant={isCustomRange ? 'default' : 'secondary'} className="w-fit py-1 px-3 text-xs gap-1.5">
-                        <Clock className="size-3.5" />
-                        {isCustomRange
-                            ? `تقرير للفترة من ${fromDate} إلى ${toDate}`
-                            : 'إحصائيات اليوم (تتصفح تلقائياً 12:00 منتصف الليل بتوقيت بغداد)'}
+                        <Clock className="size-3.5 shrink-0" />
+                        {isCustomRange ? (
+                            <span className="inline-flex items-center gap-1.5 flex-wrap">
+                                <span>تقرير للفترة من</span>
+                                <span dir="ltr" className="font-mono font-bold underline">{fromDate}</span>
+                                <span>إلى</span>
+                                <span dir="ltr" className="font-mono font-bold underline">{toDate}</span>
+                            </span>
+                        ) : (
+                            <span>إحصائيات اليوم (تتصفح تلقائياً 12:00 منتصف الليل)</span>
+                        )}
                     </Badge>
                 </div>
 
@@ -131,24 +141,28 @@ export default function Dashboard({
                         <form onSubmit={handleFetchReport} className="flex flex-col sm:flex-row items-end gap-3">
                             <div className="space-y-1.5 flex-1 w-full">
                                 <label className="text-xs font-semibold text-muted-foreground">من تاريخ</label>
-                                <Input
-                                    type="date"
-                                    value={from}
-                                    onChange={(e) => setFrom(e.target.value)}
-                                    className="w-full"
-                                    dir="ltr"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type="date"
+                                        value={from}
+                                        onChange={(e) => setFrom(e.target.value)}
+                                        className="w-full font-mono text-sm"
+                                        dir="ltr"
+                                    />
+                                </div>
                             </div>
 
                             <div className="space-y-1.5 flex-1 w-full">
                                 <label className="text-xs font-semibold text-muted-foreground">إلى تاريخ</label>
-                                <Input
-                                    type="date"
-                                    value={to}
-                                    onChange={(e) => setTo(e.target.value)}
-                                    className="w-full"
-                                    dir="ltr"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type="date"
+                                        value={to}
+                                        onChange={(e) => setTo(e.target.value)}
+                                        className="w-full font-mono text-sm"
+                                        dir="ltr"
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex gap-2 w-full sm:w-auto">
@@ -265,7 +279,7 @@ export default function Dashboard({
                                                         {t.type === 'loaded' ? 'رحلة محملة' : 'رحلة فارغة'}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground mt-1">
-                                                        {t.user.name} · {formatDate(t.date)}
+                                                        {t.user.name} · <span dir="ltr" className="font-mono">{formatDate(t.date)}</span>
                                                     </p>
                                                 </div>
                                             </div>
@@ -303,7 +317,7 @@ export default function Dashboard({
                                                 <p className="text-xs text-muted-foreground">{act.description}</p>
                                             )}
                                             <p className="text-xs text-muted-foreground">
-                                                {act.user_name} · {formatDate(act.created_at)}
+                                                {act.user_name} · <span dir="ltr" className="font-mono">{formatDate(act.created_at)}</span>
                                             </p>
                                         </div>
                                     </div>
