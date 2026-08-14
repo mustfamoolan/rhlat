@@ -22,9 +22,7 @@ import {
     History,
     ArrowRight,
     RotateCcw,
-    Clock,
     Filter,
-    Radio,
 } from 'lucide-react';
 
 interface StatProps {
@@ -65,7 +63,6 @@ export default function Dashboard({
     isCustomRange,
     fromDate,
     toDate,
-    currentBaghdadTime,
     recentTrips,
     recentActivities,
 }: StatProps) {
@@ -76,7 +73,7 @@ export default function Dashboard({
     useEffect(() => {
         const interval = setInterval(() => {
             router.reload({
-                only: ['stats', 'recentTrips', 'recentActivities', 'currentBaghdadTime'],
+                only: ['stats', 'recentTrips', 'recentActivities'],
             });
         }, 4000);
 
@@ -124,34 +121,20 @@ export default function Dashboard({
                 {/* Page Heading */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                        <div className="flex items-center gap-2.5">
-                            <h1 className="text-2xl font-semibold tracking-tight">الداشبورد</h1>
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                تحديث فوري مباشر
-                            </span>
-                        </div>
+                        <h1 className="text-2xl font-semibold tracking-tight">الداشبورد</h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            توقيت بغداد: <span className="font-mono font-medium text-foreground" dir="ltr">{currentBaghdadTime}</span>
+                            ملخص الحركات والإيرادات والمصروفات
                         </p>
                     </div>
 
-                    <Badge variant={isCustomRange ? 'default' : 'secondary'} className="w-fit py-1 px-3 text-xs gap-1.5">
-                        <Clock className="size-3.5 shrink-0" />
-                        {isCustomRange ? (
-                            <span className="inline-flex items-center gap-1.5 flex-wrap">
-                                <span>تقرير للفترة من</span>
-                                <span dir="ltr" className="font-mono font-bold underline">{fromDate}</span>
-                                <span>إلى</span>
-                                <span dir="ltr" className="font-mono font-bold underline">{toDate}</span>
-                            </span>
-                        ) : (
-                            <span>إحصائيات اليوم (تتصفح تلقائياً 12:00 منتصف الليل)</span>
-                        )}
-                    </Badge>
+                    {isCustomRange && (
+                        <Badge variant="default" className="w-fit py-1 px-3 text-xs gap-1.5">
+                            <span>تقرير الفترة من</span>
+                            <span dir="ltr" className="font-mono font-bold">{fromDate}</span>
+                            <span>إلى</span>
+                            <span dir="ltr" className="font-mono font-bold">{toDate}</span>
+                        </Badge>
+                    )}
                 </div>
 
                 {/* Date Range Report Filter Bar */}
@@ -160,28 +143,24 @@ export default function Dashboard({
                         <form onSubmit={handleFetchReport} className="flex flex-col sm:flex-row items-end gap-3">
                             <div className="space-y-1.5 flex-1 w-full">
                                 <label className="text-xs font-semibold text-muted-foreground">من تاريخ</label>
-                                <div className="relative">
-                                    <Input
-                                        type="date"
-                                        value={from}
-                                        onChange={(e) => setFrom(e.target.value)}
-                                        className="w-full font-mono text-sm"
-                                        dir="ltr"
-                                    />
-                                </div>
+                                <Input
+                                    type="date"
+                                    value={from}
+                                    onChange={(e) => setFrom(e.target.value)}
+                                    className="w-full font-mono text-sm"
+                                    dir="ltr"
+                                />
                             </div>
 
                             <div className="space-y-1.5 flex-1 w-full">
                                 <label className="text-xs font-semibold text-muted-foreground">إلى تاريخ</label>
-                                <div className="relative">
-                                    <Input
-                                        type="date"
-                                        value={to}
-                                        onChange={(e) => setTo(e.target.value)}
-                                        className="w-full font-mono text-sm"
-                                        dir="ltr"
-                                    />
-                                </div>
+                                <Input
+                                    type="date"
+                                    value={to}
+                                    onChange={(e) => setTo(e.target.value)}
+                                    className="w-full font-mono text-sm"
+                                    dir="ltr"
+                                />
                             </div>
 
                             <div className="flex gap-2 w-full sm:w-auto">
@@ -198,7 +177,7 @@ export default function Dashboard({
                                         className="gap-2 flex-1 sm:flex-initial text-xs"
                                     >
                                         <RotateCcw className="size-3.5" />
-                                        إحصائيات اليوم
+                                        إلغاء التصفية
                                     </Button>
                                 )}
                             </div>
@@ -272,7 +251,7 @@ export default function Dashboard({
                         <CardHeader>
                             <CardTitle className="text-base">أحدث الرحلات</CardTitle>
                             <CardDescription>
-                                {isCustomRange ? `رحلات الفترة المحددة` : `رحلات اليوم`}
+                                {isCustomRange ? `رحلات الفترة المحددة` : `أحدث الرحلات المسجلة`}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
