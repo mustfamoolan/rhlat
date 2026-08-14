@@ -26,5 +26,12 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'role' => 'employee',
         ]);
+
+        User::create([
+            'name' => 'dev',
+            'email' => 'dev@rhlat.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'employee',
+        ]);
     }
 }
