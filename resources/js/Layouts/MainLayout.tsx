@@ -12,6 +12,7 @@ import {
     Truck,
     Receipt,
     History,
+    Users,
     Plus,
     LogOut,
     Menu,
@@ -57,6 +58,16 @@ export default function MainLayout({ children, title }: MainLayoutProps) {
             icon: Receipt,
             active: route().current('expenses.index'),
         },
+        ...(user.role === 'admin'
+            ? [
+                  {
+                      label: 'إدارة المستخدمين',
+                      href: route('users.index'),
+                      icon: Users,
+                      active: route().current('users.index'),
+                  },
+              ]
+            : []),
         {
             label: 'سجل النشاطات',
             href: route('activity-logs.index'),
