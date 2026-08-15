@@ -24,6 +24,7 @@ import {
     RotateCcw,
     Filter,
     FileText,
+    TrendingUp,
 } from 'lucide-react';
 
 interface StatProps {
@@ -40,7 +41,6 @@ interface StatProps {
     isCustomRange: boolean;
     fromDate: string;
     toDate: string;
-    currentBaghdadTime: string;
     recentTrips: Array<{
         id: number;
         type: 'loaded' | 'empty';
@@ -198,60 +198,98 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Stats Grid — 6 Metrics with Green for Loaded and Red for Empty */}
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                    {/* Total Trips */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">إجمالي الرحلات</CardTitle>
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">إجمالي الرحلات</CardTitle>
                             <Calendar className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stats.totalTrips}</div>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-[11px] text-muted-foreground mt-1">
                                 {stats.loadedCount} محملة · {stats.emptyCount} فارغة
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    {/* Loaded Revenue - GREEN */}
+                    <Card className="border-emerald-200/60 bg-emerald-50/20">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">إيرادات المحملة</CardTitle>
-                            <PackageCheck className="size-4 text-muted-foreground" />
+                            <CardTitle className="text-xs font-semibold text-emerald-800">رحلات محملة</CardTitle>
+                            <PackageCheck className="size-4 text-emerald-600" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{formatIQD(stats.loadedRevenue)}</div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                {stats.loadedCount} رحلة محملة
+                            <div className="text-2xl font-bold text-emerald-600 tabular-nums">
+                                {formatIQD(stats.loadedRevenue)}
+                            </div>
+                            <p className="text-[11px] text-emerald-700/80 mt-1">
+                                عدد ({stats.loadedCount}) رحلة محملة
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    {/* Empty Revenue - RED */}
+                    <Card className="border-red-200/60 bg-red-50/20">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">إجمالي المصروفات</CardTitle>
-                            <Receipt className="size-4 text-muted-foreground" />
+                            <CardTitle className="text-xs font-semibold text-red-800">رحلات فارغة</CardTitle>
+                            <Truck className="size-4 text-red-600" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-destructive">
+                            <div className="text-2xl font-bold text-red-600 tabular-nums">
+                                {formatIQD(stats.emptyRevenue)}
+                            </div>
+                            <p className="text-[11px] text-red-700/80 mt-1">
+                                عدد ({stats.emptyCount}) رحلة فارغة
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Total Revenue */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">الإيراد الكلي</CardTitle>
+                            <Wallet className="size-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold tabular-nums">
+                                {formatIQD(stats.totalRevenue)}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                محملة + فارغة
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Total Expenses - RED */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">المصروفات</CardTitle>
+                            <Receipt className="size-4 text-destructive" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-destructive tabular-nums">
                                 {formatIQD(stats.totalExpenses)}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-[11px] text-muted-foreground mt-1">
                                 مصاريف التشغيل
                             </p>
                         </CardContent>
                     </Card>
 
+                    {/* Net Income */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">صافي الأرباح</CardTitle>
-                            <Wallet className="size-4 text-muted-foreground" />
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">صافي الأرباح</CardTitle>
+                            <TrendingUp className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className={`text-2xl font-bold ${stats.netIncome >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+                            <div className={`text-2xl font-bold tabular-nums ${stats.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                 {formatIQD(stats.netIncome)}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                الإيرادات ناقصاً المصاريف
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                الإيرادات - المصاريف
                             </p>
                         </CardContent>
                     </Card>
@@ -278,7 +316,7 @@ export default function Dashboard({
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${
-                                                    t.type === 'loaded' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'
+                                                    t.type === 'loaded' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
                                                 }`}>
                                                     {t.type === 'loaded'
                                                         ? <PackageCheck className="size-4" />
@@ -287,14 +325,18 @@ export default function Dashboard({
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium leading-none">
-                                                        {t.type === 'loaded' ? 'رحلة محملة' : 'رحلة فارغة'}
+                                                        {t.type === 'loaded' ? (
+                                                            <span className="text-emerald-700 font-semibold">رحلة محملة</span>
+                                                        ) : (
+                                                            <span className="text-red-700 font-semibold">رحلة فارغة</span>
+                                                        )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground mt-1">
                                                         {t.user.name} · <span dir="ltr" className="font-mono">{formatDate(t.date)}</span>
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="text-sm font-semibold tabular-nums">
+                                            <div className={`text-sm font-semibold tabular-nums ${t.type === 'loaded' ? 'text-emerald-600' : 'text-red-600'}`}>
                                                 {formatIQD(t.price)}
                                             </div>
                                         </div>
