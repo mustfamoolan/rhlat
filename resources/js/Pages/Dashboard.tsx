@@ -166,9 +166,6 @@ export default function Dashboard({
                             <div className="text-3xl font-extrabold text-foreground tabular-nums">
                                 {formatIQD(stats.cashBoxBalance)}
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-1.5">
-                                تراكمي كامل لشهر <span className="font-semibold text-foreground">{stats.currentMonthName}</span> (لا يتأثر بالفلتر)
-                            </p>
                         </CardContent>
                     </Card>
 
