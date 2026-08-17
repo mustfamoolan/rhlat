@@ -25,6 +25,7 @@ import {
     Filter,
     FileText,
     TrendingUp,
+    Archive,
 } from 'lucide-react';
 
 interface StatProps {
@@ -37,7 +38,16 @@ interface StatProps {
         totalRevenue: number;
         totalExpenses: number;
         netIncome: number;
+        cashBoxBalance: number;
+        currentMonthName: string;
     };
+    pastMonthsArchives: Array<{
+        month: string;
+        month_name: string;
+        revenue: number;
+        expenses: number;
+        net: number;
+    }>;
     isCustomRange: boolean;
     fromDate: string;
     toDate: string;
@@ -61,6 +71,7 @@ interface StatProps {
 
 export default function Dashboard({
     stats,
+    pastMonthsArchives,
     isCustomRange,
     fromDate,
     toDate,
@@ -74,7 +85,7 @@ export default function Dashboard({
     useEffect(() => {
         const interval = setInterval(() => {
             router.reload({
-                only: ['stats', 'recentTrips', 'recentActivities'],
+                only: ['stats', 'recentTrips', 'recentActivities', 'pastMonthsArchives'],
             });
         }, 4000);
 
@@ -126,7 +137,7 @@ export default function Dashboard({
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight">الداشبورد</h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            ملخص الحركات والإيرادات والمصروفات
+                            ملخص الحركات والإيرادات والمصروفات والصناديق المالية
                         </p>
                     </div>
 
@@ -138,6 +149,44 @@ export default function Dashboard({
                             <span dir="ltr" className="font-mono font-bold">{toDate}</span>
                         </Badge>
                     )}
+                </div>
+
+                {/* Primary Highlights: Cash Box (Safe) vs Filtered Net Income */}
+                <div className="grid gap-4 md:grid-cols-3">
+                    {/* Standout Safe Box Balance - Not affected by date filters */}
+                    <Card className="md:col-span-1 border-primary bg-primary/5 shadow-sm relative overflow-hidden">
+                        <div className="absolute -right-4 -bottom-4 opacity-10 text-primary">
+                            <Wallet className="size-32" />
+                        </div>
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-bold text-primary">رصيد الصندوق الكلي</CardTitle>
+                            <Wallet className="size-5 text-primary shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-3xl font-extrabold text-foreground tabular-nums">
+                                {formatIQD(stats.cashBoxBalance)}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-1.5">
+                                تراكمي كامل لشهر <span className="font-semibold text-foreground">{stats.currentMonthName}</span> (لا يتأثر بالفلتر)
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Filtered Net Income */}
+                    <Card className="md:col-span-2 shadow-sm relative overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-semibold">صافي الفترة المحددة بالفلتر</CardTitle>
+                            <TrendingUp className="size-5 text-muted-foreground shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-3xl font-extrabold tabular-nums ${stats.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                {formatIQD(stats.netIncome)}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-1.5">
+                                صافي الأرباح (الإيرادات - المصاريف) للفترة المعروضة بالجدول أدناه
+                            </p>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {/* Date Range Report Filter Bar */}
@@ -198,12 +247,12 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Stats Grid — 6 Metrics with Green for Loaded and Red for Empty */}
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                {/* Stats Grid — 5 Filtered Metrics */}
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                     {/* Total Trips */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-muted-foreground">إجمالي الرحلات</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">رحلات الفترة</CardTitle>
                             <Calendar className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
@@ -216,8 +265,8 @@ export default function Dashboard({
 
                     {/* Loaded Revenue - GREEN */}
                     <Card className="border-emerald-200/60 bg-emerald-50/20">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-emerald-800">رحلات محملة</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-emerald-800">إيرادات المحملة</CardTitle>
                             <PackageCheck className="size-4 text-emerald-600" />
                         </CardHeader>
                         <CardContent>
@@ -225,15 +274,15 @@ export default function Dashboard({
                                 {formatIQD(stats.loadedRevenue)}
                             </div>
                             <p className="text-[11px] text-emerald-700/80 mt-1">
-                                عدد ({stats.loadedCount}) رحلة محملة
+                                عدد ({stats.loadedCount}) رحلة
                             </p>
                         </CardContent>
                     </Card>
 
                     {/* Empty Revenue - RED */}
                     <Card className="border-red-200/60 bg-red-50/20">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-red-800">رحلات فارغة</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-red-800">إيرادات الفارغة</CardTitle>
                             <Truck className="size-4 text-red-600" />
                         </CardHeader>
                         <CardContent>
@@ -241,15 +290,15 @@ export default function Dashboard({
                                 {formatIQD(stats.emptyRevenue)}
                             </div>
                             <p className="text-[11px] text-red-700/80 mt-1">
-                                عدد ({stats.emptyCount}) رحلة فارغة
+                                عدد ({stats.emptyCount}) رحلة
                             </p>
                         </CardContent>
                     </Card>
 
                     {/* Total Revenue */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-muted-foreground">الإيراد الكلي</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">الإيراد للفترة</CardTitle>
                             <Wallet className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
@@ -257,15 +306,15 @@ export default function Dashboard({
                                 {formatIQD(stats.totalRevenue)}
                             </div>
                             <p className="text-[11px] text-muted-foreground mt-1">
-                                محملة + فارغة
+                                محملة + فارغة بالفترة
                             </p>
                         </CardContent>
                     </Card>
 
                     {/* Total Expenses - RED */}
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-muted-foreground">المصروفات</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">المصروفات للفترة</CardTitle>
                             <Receipt className="size-4 text-destructive" />
                         </CardHeader>
                         <CardContent>
@@ -273,36 +322,20 @@ export default function Dashboard({
                                 {formatIQD(stats.totalExpenses)}
                             </div>
                             <p className="text-[11px] text-muted-foreground mt-1">
-                                مصاريف التشغيل
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    {/* Net Income */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-xs font-semibold text-muted-foreground">صافي الأرباح</CardTitle>
-                            <TrendingUp className="size-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className={`text-2xl font-bold tabular-nums ${stats.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                {formatIQD(stats.netIncome)}
-                            </div>
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                الإيرادات - المصاريف
+                                مصاريف التشغيل بالفترة
                             </p>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Bottom Grid */}
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-10">
                     {/* Recent Trips */}
                     <Card className="lg:col-span-4">
                         <CardHeader>
-                            <CardTitle className="text-base">أحدث الرحلات</CardTitle>
+                            <CardTitle className="text-base">أحدث الحركات بالفترة</CardTitle>
                             <CardDescription>
-                                {isCustomRange ? `رحلات الفترة المحددة` : `أحدث الرحلات المسجلة`}
+                                {isCustomRange ? `حركات الفترة المحددة بالفلتر` : `أحدث الرحلات المسجلة`}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -343,6 +376,43 @@ export default function Dashboard({
                                         {i < recentTrips.length - 1 && <Separator className="mt-3" />}
                                     </div>
                                 ))
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Monthly Archives Card */}
+                    <Card className="lg:col-span-3">
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Archive className="size-4 text-primary" />
+                                أرشيف الصناديق الشهرية
+                            </CardTitle>
+                            <CardDescription>الرصيد الصافي المؤرشف للصندوق لكل شهر سابق</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {pastMonthsArchives.length === 0 ? (
+                                <p className="text-center py-6 text-sm text-muted-foreground">
+                                    لا توجد أشهر مؤرشفة سابقة بعد
+                                </p>
+                            ) : (
+                                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                                    {pastMonthsArchives.map((archive, i) => (
+                                        <div key={archive.month}>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-semibold">{archive.month_name}</p>
+                                                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                                                        إيراد: {formatIQD(archive.revenue)} · مصروف: {formatIQD(archive.expenses)}
+                                                    </p>
+                                                </div>
+                                                <div className="text-sm font-bold text-primary tabular-nums">
+                                                    {formatIQD(archive.net)}
+                                                </div>
+                                            </div>
+                                            {i < pastMonthsArchives.length - 1 && <Separator className="mt-3" />}
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </CardContent>
                     </Card>
