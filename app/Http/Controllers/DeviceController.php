@@ -32,6 +32,10 @@ class DeviceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'غير مصرح لك بإجراء تعديل جرد الأجهزة.');
+        }
+
         $validated = $request->validate([
             'amount' => 'required|integer',
             'notes' => 'nullable|string|max:1000',
