@@ -55,7 +55,7 @@
         /* KPI Data Grid Summary */
         .summary-sections {
             display: grid;
-            grid-template-columns: 3fr 2fr;
+            grid-template-columns: 2fr 1fr;
             gap: 10px;
             margin-bottom: 14px;
         }
@@ -65,6 +65,9 @@
             border-radius: 6px;
             padding: 8px 10px;
             background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .summary-block-title {
@@ -78,14 +81,16 @@
 
         .summary-grid-financial {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 6px;
+            flex: 1;
         }
 
         .summary-grid-devices {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr;
             gap: 6px;
+            flex: 1;
         }
 
         .summary-card {
@@ -94,6 +99,10 @@
             padding: 4px 6px;
             background-color: #ffffff;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .summary-card .label {
@@ -276,7 +285,7 @@
 
     <!-- KPI Summary Sections -->
     <div class="summary-sections">
-        <!-- Financial Summary Box -->
+        <!-- Financial Summary Box (6 Cards) -->
         <div class="summary-block">
             <div class="summary-block-title">الملخص المالي للمدة المحددة</div>
             <div class="summary-grid-financial">
@@ -284,22 +293,30 @@
                     <div class="label">إجمالي الرحلات</div>
                     <div class="value">{{ $totalTripsCount }}</div>
                 </div>
+                <div class="summary-card card-loaded">
+                    <div class="label">رحلات محملة</div>
+                    <div class="value text-emerald-700">{{ $loadedCount }}</div>
+                </div>
+                <div class="summary-card card-empty">
+                    <div class="label">رحلات فارغة</div>
+                    <div class="value text-red-700">{{ $emptyCount }}</div>
+                </div>
                 <div class="summary-card">
-                    <div class="label">الإيراد الكلي</div>
-                    <div class="value">{{ number_format($totalRevenue) }}</div>
+                    <div class="label">إجمالي الإيرادات</div>
+                    <div class="value text-slate-800">{{ number_format($totalRevenue) }}</div>
                 </div>
                 <div class="summary-card">
                     <div class="label">المصروفات</div>
-                    <div class="value" style="color: #991b1b;">{{ number_format($totalExpenses) }}</div>
+                    <div class="value text-red-700">{{ number_format($totalExpenses) }}</div>
                 </div>
                 <div class="summary-card {{ $netIncome >= 0 ? 'net-positive' : 'net-negative' }}">
                     <div class="label">صافي الأرباح</div>
-                    <div class="value">{{ number_format($netIncome) }}</div>
+                    <div class="value font-bold">{{ number_format($netIncome) }}</div>
                 </div>
             </div>
         </div>
 
-        <!-- Devices Inventory Summary Box -->
+        <!-- Devices Inventory Summary Box (3 Cards stacked vertically to match height) -->
         <div class="summary-block">
             <div class="summary-block-title">ملخص جرد رصيد الأجهزة</div>
             <div class="summary-grid-devices">
@@ -315,7 +332,7 @@
                 </div>
                 <div class="summary-card">
                     <div class="label">الأجهزة الحالية</div>
-                    <div class="value text-primary" style="font-size: 12.5px;">{{ $endingDevicesCount }}</div>
+                    <div class="value text-primary font-bold">{{ $endingDevicesCount }}</div>
                 </div>
             </div>
         </div>
