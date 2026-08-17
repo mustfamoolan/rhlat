@@ -172,26 +172,6 @@ export default function DevicesIndex({ logs, currentCount, filters }: DevicesPag
                             </div>
                         </CardContent>
                     </Card>
-
-                    <Card className="md:col-span-2">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium">سجل الحركات السريعة</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-xs text-muted-foreground space-y-2">
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex size-2 rounded-full bg-emerald-500"></span>
-                                <span><strong>رحلة محملة:</strong> تزيد رصيد الأجهزة بمقدار <span className="text-emerald-600 font-bold">+1 جهاز</span>.</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex size-2 rounded-full bg-destructive"></span>
-                                <span><strong>رحلة فارغة:</strong> تنقص رصيد الأجهزة بمقدار <span className="text-destructive font-bold">-1 جهاز</span>.</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="inline-flex size-2 rounded-full bg-blue-500"></span>
-                                <span><strong>التعديل اليدوي:</strong> يسمح للأدمن فقط بزيادة أو إنقاص أي عدد للجرد.</span>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 {/* Filter Selector */}
