@@ -43,6 +43,8 @@ class ReportController extends Controller
 
         $loadedCount = $loadedTrips->count();
         $emptyCount = $emptyTrips->count();
+        $totalTripsCount = $trips->count();
+
         $loadedRevenue = $loadedTrips->sum('price');
         $emptyRevenue = $emptyTrips->sum('price');
         $totalRevenue = $loadedRevenue + $emptyRevenue;
@@ -85,6 +87,7 @@ class ReportController extends Controller
         return view('reports.pdf', [
             'periodLabel' => $periodLabel,
             'generatedAt' => Carbon::now($timezone)->format('Y/m/d h:i A'),
+            'totalTripsCount' => $totalTripsCount,
             'loadedCount' => $loadedCount,
             'emptyCount' => $emptyCount,
             'loadedRevenue' => $loadedRevenue,

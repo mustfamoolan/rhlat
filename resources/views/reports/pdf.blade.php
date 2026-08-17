@@ -9,7 +9,7 @@
 
         @page {
             size: A4 portrait;
-            margin: 12mm;
+            margin: 10mm;
         }
 
         body {
@@ -17,9 +17,9 @@
             background-color: #ffffff;
             color: #0f172a;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
             direction: rtl;
-            font-size: 13px;
+            font-size: 12.5px;
             line-height: 1.4;
         }
 
@@ -29,57 +29,66 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #0f172a;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .brand-title {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             margin: 0;
             color: #0f172a;
         }
 
         .report-subtitle {
-            font-size: 13px;
+            font-size: 12px;
             color: #475569;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
         .meta-box {
             text-align: left;
-            font-size: 11px;
+            font-size: 10.5px;
             color: #64748b;
         }
 
         /* KPI Data Grid Summary */
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         .summary-card {
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 7px 8px;
             background-color: #f8fafc;
             text-align: center;
         }
 
         .summary-card .label {
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .summary-card .value {
-            font-size: 15px;
+            font-size: 13.5px;
             font-weight: 800;
             color: #0f172a;
             margin-top: 2px;
             direction: ltr;
+        }
+
+        .summary-card.card-loaded .value {
+            color: #166534;
+        }
+
+        .summary-card.card-empty .value {
+            color: #991b1b;
         }
 
         .summary-card.net-positive .value {
@@ -92,7 +101,7 @@
 
         /* Main Data Grid Table */
         .data-grid-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             margin-bottom: 8px;
             color: #1e293b;
@@ -101,14 +110,14 @@
         table.data-grid {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            margin-bottom: 20px;
+            font-size: 11.5px;
+            margin-bottom: 16px;
         }
 
         table.data-grid th,
         table.data-grid td {
             border: 1px solid #94a3b8;
-            padding: 7px 10px;
+            padding: 6px 8px;
             text-align: right;
         }
 
@@ -117,7 +126,7 @@
             color: #ffffff;
             font-weight: 700;
             text-align: center;
-            font-size: 11.5px;
+            font-size: 11px;
         }
 
         table.data-grid tr:nth-child(even) {
@@ -129,17 +138,17 @@
         }
 
         .type-loaded {
-            color: #1e40af;
-            font-weight: 600;
+            color: #166534;
+            font-weight: 700;
         }
 
         .type-empty {
-            color: #c2410c;
-            font-weight: 600;
+            color: #991b1b;
+            font-weight: 700;
         }
 
         .type-expense {
-            color: #991b1b;
+            color: #dc2626;
             font-weight: 600;
         }
 
@@ -161,19 +170,19 @@
         table.data-grid tr.total-row td {
             background-color: #e2e8f0;
             font-weight: 800;
-            font-size: 13px;
+            font-size: 12.5px;
             border-top: 2px solid #0f172a;
             border-bottom: 2px solid #0f172a;
         }
 
         /* Footer Notes */
         .report-footer {
-            margin-top: 24px;
-            padding-top: 12px;
+            margin-top: 20px;
+            padding-top: 10px;
             border-top: 1px solid #cbd5e1;
             display: flex;
             justify-content: space-between;
-            font-size: 10.5px;
+            font-size: 10px;
             color: #64748b;
         }
 
@@ -219,13 +228,17 @@
         </div>
     </div>
 
-    <!-- KPI Data Grid Summary Cards -->
+    <!-- KPI Data Grid Summary Cards (6 Cards) -->
     <div class="summary-grid">
         <div class="summary-card">
+            <div class="label">إجمالي الرحلات</div>
+            <div class="value">{{ $totalTripsCount }}</div>
+        </div>
+        <div class="summary-card card-loaded">
             <div class="label">رحلات محملة</div>
             <div class="value">{{ $loadedCount }}</div>
         </div>
-        <div class="summary-card">
+        <div class="summary-card card-empty">
             <div class="label">رحلات فارغة</div>
             <div class="value">{{ $emptyCount }}</div>
         </div>
@@ -234,7 +247,7 @@
             <div class="value">{{ number_format($totalRevenue) }} د.ع</div>
         </div>
         <div class="summary-card">
-            <div class="label">إجمالي المصروفات</div>
+            <div class="label">المصروفات</div>
             <div class="value" style="color: #991b1b;">{{ number_format($totalExpenses) }} د.ع</div>
         </div>
         <div class="summary-card {{ $netIncome >= 0 ? 'net-positive' : 'net-negative' }}">
@@ -244,23 +257,23 @@
     </div>
 
     <!-- Data Grid Table -->
-    <div class="data-grid-title">جدول التفاصيل (Data Grid):</div>
+    <div class="data-grid-title">جدول تفاصيل الحركات (Data Grid):</div>
     <table class="data-grid">
         <thead>
             <tr>
-                <th style="width: 40px;">#</th>
-                <th style="width: 140px;">التاريخ والوقت</th>
-                <th style="width: 110px;">نوع الحركة</th>
+                <th style="width: 35px;">#</th>
+                <th style="width: 135px;">التاريخ والوقت</th>
+                <th style="width: 105px;">نوع الحركة</th>
                 <th>التفاصيل والملاحظات</th>
-                <th style="width: 110px;">المستخدم</th>
-                <th style="width: 120px;">المبلغ (د.ع)</th>
+                <th style="width: 105px;">المستخدم</th>
+                <th style="width: 115px;">المبلغ (د.ع)</th>
             </tr>
         </thead>
         <tbody>
             @forelse($gridData as $index => $row)
                 <tr>
                     <td style="text-align: center; color: #64748b;">{{ $index + 1 }}</td>
-                    <td style="font-family: monospace; font-size: 11px; text-align: center;" dir="ltr">{{ $row['date'] }}</td>
+                    <td style="font-family: monospace; font-size: 10.5px; text-align: center;" dir="ltr">{{ $row['date'] }}</td>
                     <td style="text-align: center;">
                         <span class="{{ $row['raw_type'] === 'loaded' ? 'type-loaded' : ($row['raw_type'] === 'empty' ? 'type-empty' : 'type-expense') }}">
                             {{ $row['type'] }}
@@ -268,7 +281,7 @@
                     </td>
                     <td>{{ $row['details'] }}</td>
                     <td style="text-align: center;">{{ $row['user'] }}</td>
-                    <td className="{{ $row['is_income'] ? 'amount-pos' : 'amount-neg' }}" style="text-align: left; font-family: monospace;" dir="ltr">
+                    <td style="text-align: left; font-family: monospace;" dir="ltr" class="{{ $row['is_income'] ? 'amount-pos' : 'amount-neg' }}">
                         {{ number_format($row['amount']) }} د.ع
                     </td>
                 </tr>
