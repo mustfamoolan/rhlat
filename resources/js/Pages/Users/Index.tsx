@@ -15,7 +15,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Users, Search, Plus, Edit, Trash2, Shield, User as UserIcon } from 'lucide-react';
+import { Users, Search, Plus, Edit, Trash2, Shield, User as UserIcon, CheckCircle2, XCircle } from 'lucide-react';
 import { PageProps } from '@/types';
 
 interface UserItem {
@@ -23,6 +23,7 @@ interface UserItem {
     name: string;
     email: string;
     role: 'admin' | 'employee';
+    can_delete_trips: boolean;
     created_at: string;
 }
 
@@ -59,6 +60,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
         email: '',
         password: '',
         role: 'employee' as 'admin' | 'employee',
+        can_delete_trips: false,
     });
 
     // Form for editing an existing user
@@ -74,6 +76,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
         email: '',
         password: '',
         role: 'employee' as 'admin' | 'employee',
+        can_delete_trips: false,
     });
 
     const handleCreateSubmit = (e: React.FormEvent) => {
@@ -93,6 +96,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
             email: user.email,
             password: '',
             role: user.role,
+            can_delete_trips: user.role === 'admin' ? true : !!user.can_delete_trips,
         });
     };
 
@@ -144,7 +148,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                             إضافة مستخدم جديد
                         </DialogTitle>
                         <DialogDescription>
-                            أدخل بيانات الحساب الجديد (اسم، بريد إلكتروني، كلمة مرور، ودور المستخدم)
+                            أدخل بيانات الحساب الجديد وتحديد صلاحيات حذف الرحلات للمستخدم
                         </DialogDescription>
                     </DialogHeader>
 
@@ -196,7 +200,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label>الدور والصلاحيات</Label>
+                            <Label>الدور والصلاحيات الرئيسية</Label>
                             <div className="grid grid-cols-2 gap-2">
                                 <button
                                     type="button"
@@ -212,7 +216,10 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setCreateData('role', 'admin')}
+                                    onClick={() => {
+                                        setCreateData('role', 'admin');
+                                        setCreateData('can_delete_trips', true);
+                                    }}
                                     className={`flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm font-medium transition-colors ${
                                         createData.role === 'admin'
                                             ? 'border-primary bg-primary text-primary-foreground'
@@ -224,6 +231,24 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Permission Toggle: Allow Deleting Trips */}
+                        {createData.role === 'employee' && (
+                            <div className="rounded-lg border p-3 bg-muted/30 space-y-2">
+                                <label className="flex items-center justify-between cursor-pointer">
+                                    <span className="text-sm font-medium">إمكانية حذف الرحلات</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={createData.can_delete_trips}
+                                        onChange={(e) => setCreateData('can_delete_trips', e.target.checked)}
+                                        className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                    عند تفعيل هذا الخيار، سيتمكن الموظف من إظهار واستخدام زر حذف الرحلات.
+                                </p>
+                            </div>
+                        )}
 
                         <DialogFooter className="gap-2">
                             <Button type="button" variant="outline" onClick={() => setCreateModalOpen(false)}>
@@ -243,7 +268,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                     <DialogHeader>
                         <DialogTitle>تعديل بيانات المستخدم #{editUser?.id}</DialogTitle>
                         <DialogDescription>
-                            تعديل الاسم والبريد والدور (اترك كلمة المرور فارغة إذا لم ترفع في تغييرها)
+                            تعديل الاسم والبريد والدور وصلاحية حذف الرحلات
                         </DialogDescription>
                     </DialogHeader>
 
@@ -305,7 +330,10 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setEditData('role', 'admin')}
+                                    onClick={() => {
+                                        setEditData('role', 'admin');
+                                        setEditData('can_delete_trips', true);
+                                    }}
                                     className={`flex items-center justify-center gap-2 rounded-md border px-3 py-2.5 text-sm font-medium transition-colors ${
                                         editData.role === 'admin'
                                             ? 'border-primary bg-primary text-primary-foreground'
@@ -317,6 +345,24 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Permission Toggle: Allow Deleting Trips */}
+                        {editData.role === 'employee' && (
+                            <div className="rounded-lg border p-3 bg-muted/30 space-y-2">
+                                <label className="flex items-center justify-between cursor-pointer">
+                                    <span className="text-sm font-medium">إمكانية حذف الرحلات</span>
+                                    <input
+                                        type="checkbox"
+                                        checked={editData.can_delete_trips}
+                                        onChange={(e) => setEditData('can_delete_trips', e.target.checked)}
+                                        className="size-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                    تسمح للموظف بحذف الرحلات المسجلة في النظام.
+                                </p>
+                            </div>
+                        )}
 
                         <DialogFooter className="gap-2">
                             <Button type="button" variant="outline" onClick={() => setEditUser(null)}>
@@ -359,7 +405,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                             إدارة المستخدمين
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            إدارة وإضافة وتعديل حسابات الموظفين والمدراء · {users.total} حساب مسجل
+                            إدارة وإضافة وتعديل حسابات الموظفين والمدراء وتحديد صلاحيات الحذف · {users.total} حساب مسجل
                         </p>
                     </div>
                     <Button className="gap-2" onClick={() => setCreateModalOpen(true)}>
@@ -412,6 +458,7 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                                 <TableHead className="text-right">الاسم</TableHead>
                                 <TableHead className="text-right">البريد الإلكتروني</TableHead>
                                 <TableHead className="text-right">الدور</TableHead>
+                                <TableHead className="text-right">صلاحية حذف الرحلات</TableHead>
                                 <TableHead className="text-right">تاريخ التسجيل</TableHead>
                                 <TableHead className="text-center w-24">الإجراءات</TableHead>
                             </TableRow>
@@ -419,63 +466,80 @@ export default function UsersIndex({ users, filters }: UsersPageProps) {
                         <TableBody>
                             {users.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
                                         لا يوجد مستخدمين مطابقين
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                users.data.map((item) => (
-                                    <TableRow key={item.id}>
-                                        <TableCell className="text-muted-foreground tabular-nums text-xs">
-                                            #{item.id}
-                                        </TableCell>
-                                        <TableCell className="font-medium">{item.name}</TableCell>
-                                        <TableCell className="font-mono text-sm text-muted-foreground">
-                                            {item.email}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant={item.role === 'admin' ? 'default' : 'secondary'}
-                                                className="text-[11px]"
-                                            >
-                                                {item.role === 'admin' ? (
-                                                    <span className="flex items-center gap-1">
-                                                        <Shield className="size-3" /> أدمن
-                                                    </span>
-                                                ) : (
-                                                    <span className="flex items-center gap-1">
-                                                        <UserIcon className="size-3" /> موظف
-                                                    </span>
-                                                )}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-sm text-muted-foreground">
-                                            {formatDate(item.created_at)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center justify-center gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-8"
-                                                    onClick={() => openEditDialog(item)}
+                                users.data.map((item) => {
+                                    const canDelete = item.role === 'admin' || !!item.can_delete_trips;
+
+                                    return (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="text-muted-foreground tabular-nums text-xs">
+                                                #{item.id}
+                                            </TableCell>
+                                            <TableCell className="font-medium">{item.name}</TableCell>
+                                            <TableCell className="font-mono text-sm text-muted-foreground">
+                                                {item.email}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant={item.role === 'admin' ? 'default' : 'secondary'}
+                                                    className="text-[11px]"
                                                 >
-                                                    <Edit className="size-4" />
-                                                </Button>
-                                                {item.id !== currentUser.id && (
+                                                    {item.role === 'admin' ? (
+                                                        <span className="flex items-center gap-1">
+                                                            <Shield className="size-3" /> أدمن
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-1">
+                                                            <UserIcon className="size-3" /> موظف
+                                                        </span>
+                                                    )}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                {canDelete ? (
+                                                    <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 text-[11px] gap-1">
+                                                        <CheckCircle2 className="size-3 text-emerald-600" />
+                                                        يستطيع الحذف
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="outline" className="text-muted-foreground text-[11px] gap-1">
+                                                        <XCircle className="size-3 text-muted-foreground" />
+                                                        غير مسموح
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">
+                                                {formatDate(item.created_at)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center justify-center gap-1">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="size-8 text-destructive hover:text-destructive"
-                                                        onClick={() => setDeleteUserId(item.id)}
+                                                        className="size-8"
+                                                        onClick={() => openEditDialog(item)}
                                                     >
-                                                        <Trash2 className="size-4" />
+                                                        <Edit className="size-4" />
                                                     </Button>
-                                                )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+                                                    {item.id !== currentUser.id && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="size-8 text-destructive hover:text-destructive"
+                                                            onClick={() => setDeleteUserId(item.id)}
+                                                        >
+                                                            <Trash2 className="size-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
                             )}
                         </TableBody>
                     </Table>

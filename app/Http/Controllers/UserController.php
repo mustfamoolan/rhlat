@@ -59,6 +59,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:admin,employee',
+            'can_delete_trips' => 'nullable|boolean',
         ]);
 
         $user = User::create([
@@ -66,12 +67,14 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
+            'can_delete_trips' => $request->boolean('can_delete_trips'),
         ]);
 
         $roleLabel = $user->role === 'admin' ? 'أدمن' : 'موظف';
+        $permissionLabel = $user->can_delete_trips ? ' (مع صلاحية حذف الرحلات)' : '';
         ActivityLog::log(
             "إضافة مستخدم جديد",
-            "تم إنشاء حساب جديد للـ {$roleLabel}: {$user->name} ({$user->email})"
+            "تم إنشاء حساب جديد للـ {$roleLabel}: {$user->name} ({$user->email}){$permissionLabel}"
         );
 
         return back()->with('success', 'تم إنشاء حساب المستخدم بنجاح.');
@@ -86,12 +89,14 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:6',
             'role' => 'required|in:admin,employee',
+            'can_delete_trips' => 'nullable|boolean',
         ]);
 
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
+            'can_delete_trips' => $request->boolean('can_delete_trips'),
         ];
 
         if (!empty($validated['password'])) {
@@ -101,9 +106,10 @@ class UserController extends Controller
         $user->update($userData);
 
         $roleLabel = $user->role === 'admin' ? 'أدمن' : 'موظف';
+        $permissionLabel = $user->can_delete_trips ? ' (مع صلاحية حذف الرحلات)' : ' (بدون صلاحية حذف الرحلات)';
         ActivityLog::log(
             "تعديل حساب مستخدم",
-            "تم تحديث بيانات حساب {$roleLabel}: {$user->name} ({$user->email})"
+            "تم تحديث بيانات حساب {$roleLabel}: {$user->name} ({$user->email}){$permissionLabel}"
         );
 
         return back()->with('success', 'تم تعديل بيانات المستخدم بنجاح.');
@@ -114,7 +120,7 @@ class UserController extends Controller
         $this->authorizeAdmin();
 
         if ($user->id === Auth::id()) {
-            return back()->withErrors(['error' => 'لا يمكنك حذف حسابك الشخصي الحادي الحالي.']);
+            return back()->withErrors(['error' => 'لا يمكنك حذف حسابك الشخصي الحالي.']);
         }
 
         $userName = $user->name;

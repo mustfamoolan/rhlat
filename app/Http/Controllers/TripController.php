@@ -125,6 +125,13 @@ class TripController extends Controller
 
     public function destroy(Trip $trip): RedirectResponse
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user->canDeleteTrips()) {
+            abort(403, 'غير مصرح لك بحذف الرحلات.');
+        }
+
         $typeLabel = $trip->type === 'loaded' ? 'محملة' : 'فارغة';
         $id = $trip->id;
         $priceFormatted = number_format($trip->price);

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'email', 'password', 'role', 'can_delete_trips'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -27,6 +27,16 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'can_delete_trips' => 'boolean',
         ];
+    }
+
+    /**
+     * Check if user has permission to delete trips.
+     * Admins can always delete trips.
+     */
+    public function canDeleteTrips(): bool
+    {
+        return $this->role === 'admin' || (bool) $this->can_delete_trips;
     }
 }

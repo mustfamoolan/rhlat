@@ -3,6 +3,7 @@ export interface User {
     name: string;
     email: string;
     role: string;
+    can_delete_trips: boolean;
     email_verified_at?: string;
 }
 

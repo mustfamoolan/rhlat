@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { CreateModal } from '@/components/Trips/CreateModal';
 import { PackageCheck, Search, Plus, Edit, Trash2 } from 'lucide-react';
+import { PageProps } from '@/types';
 
 interface TripItem {
     id: number;
@@ -38,6 +39,10 @@ interface LoadedPageProps {
 }
 
 export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProps) {
+    const { auth } = usePage<PageProps>().props;
+    const currentUser = auth.user;
+    const canDelete = currentUser.role === 'admin' || !!currentUser.can_delete_trips;
+
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editTrip, setEditTrip] = useState<TripItem | null>(null);
     const [deleteTripId, setDeleteTripId] = useState<number | null>(null);
@@ -47,7 +52,7 @@ export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProp
 
     const { data: editData, setData: setEditData, put, processing } = useForm({
         type: 'loaded',
-        price: 30000,
+        price: 25000,
         date: '',
         notes: '',
     });
@@ -110,11 +115,8 @@ export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProp
                 <DialogContent className="sm:max-w-md" dir="rtl">
                     <DialogHeader>
                         <DialogTitle>تعديل الرحلة المحملة #{editTrip?.id}</DialogTitle>
-                        <DialogDescription>
-                            تعديل السعر أو التاريخ أو الملاحظات
-                        </DialogDescription>
+                        <DialogDescription>تعديل السعر أو التاريخ أو الملاحظات</DialogDescription>
                     </DialogHeader>
-
                     <form onSubmit={handleUpdate} className="space-y-4">
                         <div className="space-y-2">
                             <Label>السعر (دينار عراقي)</Label>
@@ -186,7 +188,7 @@ export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProp
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                            <PackageCheck className="size-6" />
+                            <PackageCheck className="size-6 text-blue-600" />
                             الرحلات المحملة
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -235,7 +237,7 @@ export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProp
                     </CardContent>
                 </Card>
 
-                {/* Table */}
+                {/* Trips Table */}
                 <Card>
                     <Table>
                         <TableHeader>
@@ -288,14 +290,16 @@ export default function LoadedTrips({ trips, totalSum, filters }: LoadedPageProp
                                                 >
                                                     <Edit className="size-4" />
                                                 </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-8 text-destructive hover:text-destructive"
-                                                    onClick={() => setDeleteTripId(item.id)}
-                                                >
-                                                    <Trash2 className="size-4" />
-                                                </Button>
+                                                {canDelete && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-8 text-destructive hover:text-destructive"
+                                                        onClick={() => setDeleteTripId(item.id)}
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
