@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Trip;
+use App\Models\DeviceLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,14 +73,30 @@ class TripController extends Controller
         $userId = Auth::id();
 
         for ($i = 0; $i < $count; $i++) {
-            Trip::create([
+            $trip = Trip::create([
                 'user_id' => $userId,
                 'type' => $validated['type'],
                 'price' => $validated['price'],
                 'date' => $validated['date'],
                 'notes' => $validated['notes'] ?? null,
             ]);
+
+            // Auto-track device counts: Loaded increases (+1), Empty decreases (-1)
+            $amount = $validated['type'] === 'loaded' ? 1 : -1;
+            $latestCount = DeviceLog::getCurrentCount();
+            DeviceLog::create([
+                'user_id' => $userId,
+                'trip_id' => $trip->id,
+                'type' => $validated['type'] === 'loaded' ? 'loaded_trip' : 'empty_trip',
+                'amount' => $amount,
+                'previous_count' => $latestCount,
+                'current_count' => $latestCount + $amount,
+                'notes' => "تلقائي عبر إضافة رحلة " . ($validated['type'] === 'loaded' ? 'محملة' : 'فارغة'),
+            ]);
         }
+
+        // Force mathematically consistent chain
+        DeviceLog::recalculateChain();
 
         $typeLabel = $validated['type'] === 'loaded' ? 'محملة' : 'فارغة';
         $priceFormatted = number_format($validated['price']);
@@ -111,7 +128,22 @@ class TripController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        $oldType = $trip->type;
         $trip->update($validated);
+
+        // Update corresponding DeviceLog if type changed
+        if ($oldType !== $trip->type) {
+            $deviceLog = DeviceLog::where('trip_id', $trip->id)->first();
+            if ($deviceLog) {
+                $amount = $trip->type === 'loaded' ? 1 : -1;
+                $deviceLog->update([
+                    'type' => $trip->type === 'loaded' ? 'loaded_trip' : 'empty_trip',
+                    'amount' => $amount,
+                    'notes' => "تلقائي عبر تعديل نوع الرحلة إلى " . ($trip->type === 'loaded' ? 'محملة' : 'فارغة'),
+                ]);
+                DeviceLog::recalculateChain();
+            }
+        }
 
         $typeLabel = $trip->type === 'loaded' ? 'محملة' : 'فارغة';
         $priceFormatted = number_format($trip->price);
@@ -137,6 +169,9 @@ class TripController extends Controller
         $priceFormatted = number_format($trip->price);
 
         $trip->delete();
+        
+        // Recalculate chain to fix any missing links in sequence
+        DeviceLog::recalculateChain();
 
         ActivityLog::log(
             "حذف رحلة {$typeLabel}",

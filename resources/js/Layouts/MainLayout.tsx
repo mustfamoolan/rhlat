@@ -19,6 +19,7 @@ import {
     X,
     Shield,
     User,
+    Cpu,
 } from 'lucide-react';
 
 interface MainLayoutProps {
@@ -57,6 +58,12 @@ export default function MainLayout({ children, title }: MainLayoutProps) {
             href: route('expenses.index'),
             icon: Receipt,
             active: route().current('expenses.index'),
+        },
+        {
+            label: 'تتبع الأجهزة',
+            href: route('devices.index'),
+            icon: Cpu,
+            active: route().current('devices.index'),
         },
         ...(user.role === 'admin'
             ? [
