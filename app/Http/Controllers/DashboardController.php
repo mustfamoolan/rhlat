@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Expense;
 use App\Models\Trip;
+use App\Models\DeviceLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -122,6 +123,7 @@ class DashboardController extends Controller
                 'netIncome' => $netIncome,
                 'cashBoxBalance' => (int) $cashBoxBalance,
                 'currentMonthName' => Carbon::now($timezone)->translatedFormat('F Y'),
+                'currentDevicesCount' => DeviceLog::getCurrentCount(),
             ],
             'pastMonthsArchives' => $pastMonthsArchives,
             'isCustomRange' => $isCustomRange,

@@ -26,6 +26,7 @@ import {
     FileText,
     TrendingUp,
     Archive,
+    Cpu,
 } from 'lucide-react';
 
 interface StatProps {
@@ -40,6 +41,7 @@ interface StatProps {
         netIncome: number;
         cashBoxBalance: number;
         currentMonthName: string;
+        currentDevicesCount: number;
     };
     pastMonthsArchives: Array<{
         month: string;
@@ -244,8 +246,8 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Stats Grid — 5 Filtered Metrics */}
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                {/* Stats Grid — 6 Filtered Metrics */}
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
                     {/* Total Trips */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
@@ -320,6 +322,22 @@ export default function Dashboard({
                             </div>
                             <p className="text-[11px] text-muted-foreground mt-1">
                                 مصاريف التشغيل بالفترة
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Available Devices - BLUE */}
+                    <Card className="border-blue-200/60 bg-blue-50/20">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-blue-800">الأجهزة المتوفرة</CardTitle>
+                            <Cpu className="size-4 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-blue-600 tabular-nums">
+                                {stats.currentDevicesCount}
+                            </div>
+                            <p className="text-[11px] text-blue-700/80 mt-1">
+                                إجمالي المتوفر بالمخزن
                             </p>
                         </CardContent>
                     </Card>
