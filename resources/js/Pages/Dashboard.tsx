@@ -153,41 +153,6 @@ export default function Dashboard({
                     )}
                 </div>
 
-                {/* Primary Highlights: Cash Box (Safe) vs Filtered Net Income */}
-                <div className="grid gap-4 md:grid-cols-3">
-                    {/* Standout Safe Box Balance - Not affected by date filters */}
-                    <Card className="md:col-span-1 border-primary bg-primary/5 shadow-sm relative overflow-hidden">
-                        <div className="absolute -right-4 -bottom-4 opacity-10 text-primary">
-                            <Wallet className="size-32" />
-                        </div>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-bold text-primary">رصيد الصندوق الكلي</CardTitle>
-                            <Wallet className="size-5 text-primary shrink-0" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-extrabold text-foreground tabular-nums">
-                                {formatIQD(stats.cashBoxBalance)}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Filtered Net Income */}
-                    <Card className="md:col-span-2 shadow-sm relative overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-semibold">صافي الفترة المحددة بالفلتر</CardTitle>
-                            <TrendingUp className="size-5 text-muted-foreground shrink-0" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className={`text-3xl font-extrabold tabular-nums ${stats.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                {formatIQD(stats.netIncome)}
-                            </div>
-                            <p className="text-[11px] text-muted-foreground mt-1.5">
-                                صافي الأرباح (الإيرادات - المصاريف) للفترة المعروضة بالجدول أدناه
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-
                 {/* Date Range Report Filter Bar */}
                 <Card>
                     <CardContent className="pt-4">
@@ -228,7 +193,7 @@ export default function Dashboard({
                                 >
                                     <FileText className="size-4" />
                                     تحميل تقرير PDF
-                                </a>
+                                </a >
 
                                 {isCustomRange && (
                                     <Button
@@ -246,8 +211,40 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Stats Grid — 6 Filtered Metrics */}
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                {/* Stats Grid — 8 Metrics */}
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {/* Standout Safe Box Balance - Not affected by date filters */}
+                    <Card className="border-primary bg-primary/5 shadow-sm relative overflow-hidden">
+                        <CardHeader className="flex flex-row items-center justify-between pb-1.5">
+                            <CardTitle className="text-xs font-bold text-primary">رصيد الصندوق الكلي</CardTitle>
+                            <Wallet className="size-4 text-primary shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-extrabold text-foreground tabular-nums">
+                                {formatIQD(stats.cashBoxBalance)}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                تراكمي كامل لشهر {stats.currentMonthName}
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Filtered Net Income */}
+                    <Card className="shadow-sm">
+                        <CardHeader className="flex flex-row items-center justify-between pb-1.5">
+                            <CardTitle className="text-xs font-semibold text-muted-foreground">صافي الفترة بالفلتر</CardTitle>
+                            <TrendingUp className="size-4 text-muted-foreground shrink-0" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold tabular-nums ${stats.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                {formatIQD(stats.netIncome)}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                أرباح المدة المعروضة بالفترة
+                            </p>
+                        </CardContent>
+                    </Card>
+
                     {/* Total Trips */}
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5">
