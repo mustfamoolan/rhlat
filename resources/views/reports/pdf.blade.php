@@ -55,7 +55,7 @@
         /* KPI Data Grid Summary */
         .summary-sections {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 3fr 1fr;
             gap: 10px;
             margin-bottom: 14px;
         }
@@ -81,7 +81,7 @@
 
         .summary-grid-financial {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 6px;
             flex: 1;
         }
@@ -301,6 +301,10 @@
                     <div class="label">رحلات فارغة</div>
                     <div class="value text-red-700">{{ $emptyCount }}</div>
                 </div>
+                <div class="summary-card" style="border-color: #2563eb; background-color: #eff6ff;">
+                    <div class="label" style="color: #1d4ed8; font-weight: 700;">رصيد الصندوق الكلي</div>
+                    <div class="value" style="color: #1d4ed8; font-size: 12.5px;">{{ number_format($cashBoxBalance) }}</div>
+                </div>
                 <div class="summary-card">
                     <div class="label">إجمالي الإيرادات</div>
                     <div class="value text-slate-800">{{ number_format($totalRevenue) }}</div>
@@ -309,8 +313,8 @@
                     <div class="label">المصروفات</div>
                     <div class="value text-red-700">{{ number_format($totalExpenses) }}</div>
                 </div>
-                <div class="summary-card {{ $netIncome >= 0 ? 'net-positive' : 'net-negative' }}">
-                    <div class="label">صافي الأرباح</div>
+                <div class="summary-card {{ $netIncome >= 0 ? 'net-positive' : 'net-negative' }}" style="grid-column: span 2;">
+                    <div class="label">صافي الأرباح (للفترة)</div>
                     <div class="value font-bold">{{ number_format($netIncome) }}</div>
                 </div>
             </div>

@@ -79,6 +79,14 @@ class ReportController extends Controller
             ->where('amount', '<', 0)
             ->sum('amount'));
 
+        // Calculate Cash Box Balance (Current Month - Unaffected by range filter)
+        $monthStart = Carbon::now($timezone)->startOfMonth();
+        $monthEnd = Carbon::now($timezone)->endOfMonth();
+        $monthRevenue = Trip::whereBetween('date', [$monthStart, $monthEnd])->sum('price');
+        $monthExpenses = Expense::whereBetween('date', [$monthStart, $monthEnd])->sum('amount');
+        $cashBoxBalance = $monthRevenue - $monthExpenses;
+        $currentMonthName = Carbon::now($timezone)->translatedFormat('F Y');
+
         // Combine into unified Data Grid rows sorted chronologically
         $gridData = collect();
 
@@ -152,6 +160,8 @@ class ReportController extends Controller
             'endingDevicesCount' => $endingDevicesCount,
             'addedDevices' => $addedDevices,
             'removedDevices' => $removedDevices,
+            'cashBoxBalance' => $cashBoxBalance,
+            'currentMonthName' => $currentMonthName,
             'gridData' => $gridData,
         ]);
     }
